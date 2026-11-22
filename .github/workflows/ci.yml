@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+      - name: Build
+        run: cmake --build build --config Release
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugins-windows
+          path: build/Release/*.p
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure (universal)
+        run: >
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+          -DCMAKE_OSX_DEPLOYMENT_TARGET=11.0
+      - name: Build
+        run: cmake --build build
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+      - name: Sign ad hoc and check the entry point
+        run: |
+          cd build
+          for p in *.plugin; do
+            codesign --force --sign - "$p"
+            nm -gU "$p/Contents/MacOS/${p%.plugin}" | grep -q __mod_descrip
+          done
+      - name: Zip bundles
+        run: |
+          cd build
+          mkdir -p ../dist
+          for p in *.plugin; do ditto -c -k --keepParent "$p" "../dist/$p.zip"; done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: plugins-macos
+          path: dist/*.zip
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Unit tests (fake lwsdk)
+        working-directory: python/my_bob
+        run: python -B -m unittest discover -s tests -v
