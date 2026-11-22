@@ -17,7 +17,9 @@
 template <class T>
 T *lwGlobal(GlobalFunc *g, const char *name)
 {
-    return static_cast<T *>(g(name, GFUSE_TRANSIENT));
+    // reinterpret_cast, not static_cast: T may be a function type such as
+    // LWInstUpdate, and Clang rejects static_cast from void * to a function pointer.
+    return reinterpret_cast<T *>(g(name, GFUSE_TRANSIENT));
 }
 
 // ---- instance trampolines: C callbacks -> C++ object ---------------------
