@@ -19,11 +19,14 @@ Every example builds for LightWave 2025 on Windows (`.p`) and macOS (universal `
 | `c/invert_filter` | `LWEx_Invert` | Image Filter | C/C++ 4 | Add under Processing > Image Filters; F9 renders inverted |
 | `c/lift_tool` | `LWEx_LiftTool` | Modeler MeshEditTool | C/C++ 4 | In Modeler, select points, run Lift Points and drag left and right |
 | `c/mesh_centroid` | `LWEx_MeshCentroid` | Layout Generic reading a mesh | C/C++ 4 | Select an object, run Mesh Centroid; reports point count, centre and a UV |
+| `c/imgui_gain` | `LWEx_GainImGui` | Image Filter with a Dear ImGui window (Windows only) | C/C++ 5 | Add under Image Filters, double-click it: an ImGui window opens; drag or click Gain to type, F9 renders brighter |
 | `python/my_bob` | `MY_Bob` | Python Item Motion | Python 7, 11 | Add `plugin/my_bob.py` with Add Plugins; apply Bob to a null |
 
 Server names use an `LWEx_` prefix so they cannot clash with your own plug-ins.
 
 ## Building
+
+Dear ImGui 1.91.5 (MIT, `third_party/imgui/LICENSE.txt`) is vendored for the ImGui example.
 
 The LightWave 2025 SDK headers are in `third_party/lwsdk2025.0/include`, unmodified, so no LightWave install is needed to build. They belong to LightWave Digital and are covered by the LightWave EULA. To use your own SDK copy, pass `-DLWSDK=<sdk root>`.
 

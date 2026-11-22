@@ -37,6 +37,18 @@ lw_add_plugin(Invert       c/invert_filter/invert.c)
 lw_add_plugin(LiftTool     c/lift_tool/lift_tool.c)
 lw_add_plugin(MeshCentroid c/mesh_centroid/mesh_centroid.c)
 
+# Dear ImGui settings window in its own Win32 + D3D11 window (section 5).
+# Windows only: the macOS equivalent (Cocoa + Metal backends) is not written yet.
+if(WIN32)
+  set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/third_party/imgui")
+  lw_add_plugin(GainImGui c/imgui_gain/gain.cpp
+      ${IMGUI_DIR}/imgui.cpp ${IMGUI_DIR}/imgui_draw.cpp
+      ${IMGUI_DIR}/imgui_tables.cpp ${IMGUI_DIR}/imgui_widgets.cpp
+      ${IMGUI_DIR}/backends/imgui_impl_win32.cpp ${IMGUI_DIR}/backends/imgui_impl_dx11.cpp)
+  target_include_directories(GainImGui PRIVATE "${IMGUI_DIR}")
+  target_link_libraries(GainImGui PRIVATE d3d11)
+endif()
+
 # ---- tests: the plug-in's own source in an ordinary program (section 9) ----
 enable_testing()
 add_executable(test_lift tests/test_lift.c c/lift/lift.c)
